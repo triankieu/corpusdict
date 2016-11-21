@@ -1,26 +1,50 @@
-line_1 = '20 bảng_Anh là một món tiền lớn đối_với một người nghèo .'
-line_2 = 'NULL ({ 4 5 }) £ ({ 2 3 }) 20 ({ 1 }) means ({ 6 7 8 9 }) a_lot ({ }) to ({ }) a ({ 10 }) poor ({ 11 12 }) person ({ }) . ({ 13 })'
-token_list_1 = line_1.split()
-token_list_2 = line_2.split()
+def is_begin_match(token):
+    return '({' == token
 
-print(token_list_1)
-print(token_list_2)
-aligned = ''
-flag = True
-correspond_token_list = []
-for token in token_list_2:
-    if True == flag:
-        if '({' == token:
-            flag = False
-            aligned += '('
-            correspond_token_list = []
-        else:
-            aligned += token + ' '
-    else:
-        if '})' == token:
+def is_end_match(token):
+    return '})' == token
+
+
+with open('../data/en_vn.align.A3.final', 'r') as corpus:
+    count = 0
+    corpusdic = {}
+    source_token_list = []
+    target_token_list = []
+    for line in corpus:
+        if (line[0] == '#'):
+            count = 2
+            continue
+        elif count == 2:
+            target_token_list = line.split()
+            count -= 1
+            continue
+        elif count == 1:
+            source_token_list = line.split()
+            count -= 1
+
+        if (count == 0):
             flag = True
-            aligned += ','.join(correspond_token_list) + ') '
-        else:
-            correspond_token_list.append(token_list_1[int(token)-1])
+            matched_token_list = []
 
-print (aligned)
+            previous_token = ''
+            for token in source_token_list:
+                if True == flag:
+                    if is_begin_match(token):
+                        flag = False
+                        if corpusdic.get(previous_token) is None:
+                            matched_token_list = []
+                        else:
+                            matched_token_list = corpusdic[previous_token]
+                    else:
+                        previous_token = token
+                else:
+                    if is_end_match(token):
+                        flag = True
+                        corpusdic[previous_token] = matched_token_list
+                    else:
+                        target_item = target_token_list[int(token) - 1]
+                        if (target_item not in matched_token_list):
+                            matched_token_list.append(target_item)
+
+
+    print(corpusdic)
