@@ -3,6 +3,7 @@ import sys
 import configparser
 import argparse as ap
 import subprocess
+
 from wordalignment import gizaproperty
 
 
@@ -45,6 +46,7 @@ def loadgizaproperties():
     target_name_conf = config.get('GIZA', 'target_name')
     source_language_conf = config.get('GIZA', 'source_language')
     target_language_conf = config.get('GIZA', 'target_language')
+    out_path_conf = config.get('GIZA', 'out_path')
 
     parser = ap.ArgumentParser(description='Run GIZA++ arguments')
     parser.add_argument('--gizaHome')
@@ -59,10 +61,12 @@ def loadgizaproperties():
     parser.add_argument('--targetLanguage')
     parser.add_argument('--sl')
     parser.add_argument('--tl')
+    parser.add_argument('--out')
     args = parser.parse_args()
 
     giza_properties.giza_home = getarg(args.gizaHome, giza_properties.giza_home, '/')
     giza_properties.build_path = getarg(args.buildPath, giza_properties.build_path, '/')
+    giza_properties.out_path = getarg(args.out, out_path_conf, '/')
     source = getarg(args.source)
     if source is None or source == '':
         giza_properties.source = getarg(args.s)
@@ -107,10 +111,23 @@ def loadgizaproperties():
     return giza_properties
 
 
-def dowordalignment():
+def dowordalignment(source, target, output):
+    print('Call dowordalignment')
+
     giza_properties = loadgizaproperties()
+
+    if source is not None:
+        giza_properties.source = source
+
+    if target is not None:
+        giza_properties.target = target
+
+    if output is not None:
+        giza_properties.out_path = output
+
     if not (os.path.exists(giza_properties.source) and os.path.exists(giza_properties.target)):
-        sys.exit(0)
+        print('Source or target is not selected.')
+        return
 
     preparebuildpath(giza_properties.build_path)
 
@@ -193,10 +210,10 @@ def dowordalignment():
     os.system(giza_properties.giza_home + 'GIZA++-v2/GIZA++ -S  '
               + dst_vcb_file + ' -T ' + src_vcb_file + ' -C '
               + snt_file + ' -CoocurrenceFile ' + cooc_file
-              + ' -o ' + giza_properties.build_path + giza_properties.src_lang_type
-              + '_' + giza_properties.trgt_lang_type + '.align ' + ' > ' + giza_properties.build_path + 't_s_nohup.out')
+              + ' -o ' + giza_properties.out_path + giza_properties.src_lang_type
+              + '_' + giza_properties.trgt_lang_type + '.align ' + ' > ' + giza_properties.out_path + 't_s_nohup.out')
 
     print('DONE!')
 
 
-dowordalignment()
+# dowordalignment()

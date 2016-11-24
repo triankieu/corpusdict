@@ -7,3 +7,4 @@ class GizaProperty:
     target_name = None
     src_lang_type = 'en'
     trgt_lang_type = 'vn'
+    out_path = None
