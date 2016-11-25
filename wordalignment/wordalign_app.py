@@ -2,7 +2,10 @@ from tkinter import Tk, ttk, Label, Button, Entry, StringVar, Frame, filedialog,
 import os
 import threading
 
+
 from wordalignment import run_giza
+
+progress_marks = "|/―\\|/―\\"
 
 
 def askopenfile(self, selected_file):
@@ -12,7 +15,8 @@ def askopenfile(self, selected_file):
 
 
 def askdirectory(selected_folder):
-    directory = filedialog.askdirectory(title='Select output folder')
+    directory = filedialog.askdirectory(title='Select output folder',
+                                        initialdir='/home/ryanhoang/PycharmProjects/corpusdictgit/data/output')
 
     if directory is not None:
         if not os.path.exists(directory):
@@ -29,22 +33,14 @@ def preprocessing():
     print('preprocessing')
 
 
-def task():
-    ft = ttk.Frame()
-    ft.pack(expand=True, fill=constants.BOTH, side=constants.BOTTOM)
-    pb = ttk.Progressbar(ft, orient='horizontal', mode='indeterminate')
-    pb.pack(expand=True, fill=constants.BOTH, side=constants.BOTTOM)
-    pb.start(50)
-
-
 def dowordalign(source, target, output):
     run_giza.dowordalignment(source, target, output)
 
 
-def wordalign(source, target, output):
-    t1 = threading.Thread(target=dowordalign, args=(source, target, output))
+def wordalign(master, source, target, output):
+    t1 = threading.Thread(target=dowordalign, args=(master, source, target, output))
     t1.start()
-    task()
+
     t1.join()
 
 
@@ -105,7 +101,7 @@ class WordAlignGUI:
         self.file_opt = options = {}
         options['defaultextension'] = '.txt'
         options['filetypes'] = [('all files', '.*'), ('text file', '.txt')]
-        options['initialdir'] = 'C:\\'
+        options['initialdir'] = '/home/ryanhoang/PycharmProjects/corpusdictgit/data'
         options['parent'] = master
 
         Button(master, text="Close", command=closeform).pack(side=constants.RIGHT, padx=5, pady=5)
@@ -115,8 +111,6 @@ class WordAlignGUI:
                          self.selected_output_file.get())).pack(side=constants.RIGHT, padx=5, pady=5)
         Button(master, text='Pre-processing', command=preprocessing).pack(side=constants.RIGHT, padx=5,
                                                                           pady=5)
-
-
 
 
 root = Tk()
