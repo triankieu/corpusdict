@@ -1,4 +1,7 @@
+# word align extract to dictionary
+# author: kieutran
 import collections
+import nltk
 
 
 def is_begin_match(token):
@@ -11,11 +14,13 @@ def is_end_match(token):
 
 corpusdic = {}
 
-with open('../data/vn_en.align.A3.final', 'r') as corpus:
+with open('../data/vn_en.align.A3.final', 'r') as align_result:
     count = 0
     source_token_list = []
     target_token_list = []
-    for line in corpus:
+    en_corpus_lines = open('../data/source.tok', 'r').readlines()
+    corpus_line_number = 0
+    for line in align_result:
         if line[0] == '#':
             count = 2
             continue
@@ -26,13 +31,20 @@ with open('../data/vn_en.align.A3.final', 'r') as corpus:
         elif count == 1:
             source_token_list = line.split()
             count -= 1
+            corpus_line_number += 1
 
         if count == 0:
             flag = True
             matched_token_list = {}
 
             previous_token = ''
-            for token in source_token_list:
+            en_corpus_line_tokens = en_corpus_lines[corpus_line_number - 1].split()
+            pos_tag_source_token_list = nltk.pos_tag(en_corpus_line_tokens)
+            word_token_index = 0
+
+            for i in range(len(source_token_list)):
+                token = source_token_list[i]
+
                 if flag:
                     if is_begin_match(token):
                         flag = False
@@ -41,6 +53,9 @@ with open('../data/vn_en.align.A3.final', 'r') as corpus:
                         else:
                             matched_token_list = corpusdic[previous_token]
                     else:
+                        word_token_index += 1
+                        ptag = pos_tag_source_token_list[word_token_index - 1]
+                        print(ptag)
                         previous_token = token
                 else:
                     if is_end_match(token):
@@ -63,6 +78,7 @@ def has_item(items):
             return True
     return False
 
+'''
 for key, value in odcorpus.items():
     if has_item(value.items()):
         print(key + ' : ')
@@ -70,3 +86,4 @@ for key, value in odcorpus.items():
             if iv > 1:
                 print(ik + '(' + str(iv) + ')', end=',')
         print('\r\n')
+'''
