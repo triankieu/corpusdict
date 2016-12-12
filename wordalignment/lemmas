@@ -1,0 +1,7 @@
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+
+lm = WordNetLemmatizer()
+
+print(lm.lemmatize("cats"))
+print(lm.lemmatize("went", wordnet.VERB))
